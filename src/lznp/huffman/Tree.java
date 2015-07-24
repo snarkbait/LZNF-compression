@@ -71,7 +71,7 @@ public class Tree implements Comparable<Tree>
         BitStream bs = new BitStream();
         encodedTree(root, bs);
         bs.close();
-        System.out.println("");
+        //System.out.println("");
         return bs;
     }
     
@@ -86,13 +86,13 @@ public class Tree implements Comparable<Tree>
     {
         if (isLeaf(node))
         {
-            System.out.print("1:" + node.index + ":");
+            //System.out.print("1:" + node.index + ":");
             bs.pushBit(true);
             bs.pushBits(node.index, 8);
         }
         else
         {
-            System.out.print("0:");
+            //System.out.print("0:");
             bs.pushBit(false);
             encodedTree(node.left, bs);
             encodedTree(node.right, bs);

@@ -76,13 +76,16 @@ public class LZNF {
         unzip.decompress();
         FileIO.bufferToFile(unzip.getOutstream(), ifile.getHeader().getFileName());
     }
-    
+
+    /*
+    * test code
+    */
     public static void main(String[] args)
     {
 
-        LZNF lz = new LZNF("enwik6", "enwik6.lzp");
+        LZNF lz = new LZNF("arrays.txt", "arrays.lzp");
         lz.Compress();
-        LZNF dz = new LZNF("enwik6.lzp");
+        LZNF dz = new LZNF("arrays.lzp");
         dz.Decompress();
     }
 }

@@ -49,8 +49,6 @@ public class LZNFFile
         this.header = new FileHeader(fileName, inBank);
         this.treeStream = treeStream;
         this.bitStream = bitStream;
-        System.out.println("header length " + header.getHeader().length);
-        System.out.println("tree stream len " + treeStream.length());
     }
 
     /**

@@ -15,6 +15,7 @@
 package lznp.util;
 
 import java.util.Arrays;
+import lznp.exception.NotValidFileException;
 
 /**
  * FileHeader class
@@ -57,7 +58,8 @@ public class FileHeader
      */
     public FileHeader(Bank fileBank)
     {
-        extract(fileBank);
+        this.isLZNF(fileBank);
+        this.extract(fileBank);
     }
 
     /**
@@ -72,12 +74,15 @@ public class FileHeader
     /**
      * test if first four bytes are 'LZNF'
      * @param fileBank Bank with compressed file
-     * @return true if file is LZNF compressed
      */
-    public boolean isLZNF(Bank fileBank)
+    private void isLZNF(Bank fileBank)
     {
         byte[] tag = Arrays.copyOfRange(fileBank.getBank(), 0, 4);
-        return Arrays.equals(tag, HEADER_TAG);
+        if (!Arrays.equals(tag, HEADER_TAG))
+        {
+            throw new NotValidFileException("Not a valid LZNF File.");
+        }
+              
     }
 
     /**
@@ -97,6 +102,11 @@ public class FileHeader
     public int getFileLength()
     {
         return fileLength;
+    }
+    
+    public long getCRC32()
+    {
+        return crc32;
     }
 
     /**
@@ -151,11 +161,9 @@ public class FileHeader
     {
         byte[] inBank = fileBank.getBank();
         this.fileLength = Utils.byteToInt(Arrays.copyOfRange(inBank, 4, 8));
-        System.out.println("file length " + fileLength);
         this.crc32 = (long) Utils.byteToInt(Arrays.copyOfRange(inBank, 8, 12));
         this.nameLength = Utils.byteToInt(Arrays.copyOfRange(inBank, 12, 16));
         this.dataOffset = Utils.byteToInt(Arrays.copyOfRange(inBank, 16, 20));
-        System.out.println("name " + nameLength);
         this.fileName = new String(Arrays.copyOfRange(inBank, 20, 20 + nameLength));
 
     }

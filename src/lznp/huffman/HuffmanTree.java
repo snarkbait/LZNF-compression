@@ -81,12 +81,9 @@ public class HuffmanTree
     {  
 
         Tree tree;
-        //if (bs.EOB()) return tree;
         if (bs.readBit())
         {
-            System.out.print("1:");
             int t = bs.readBits(8);
-            System.out.print(t + ":");
             tree = new Tree(t, 0);
             return tree;
         }

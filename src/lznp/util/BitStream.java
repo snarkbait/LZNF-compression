@@ -15,7 +15,6 @@
 package lznp.util;
 
 import java.util.Arrays;
-import lznp.huffman.HuffmanTree;
 
 /**
  * BitStream class

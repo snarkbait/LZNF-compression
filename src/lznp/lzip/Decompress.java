@@ -16,8 +16,10 @@ package lznp.lzip;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import lznp.exception.InvalidChecksumException;
 import lznp.huffman.HuffmanTree;
 import lznp.util.BitStream;
+import lznp.util.FileIO;
 import lznp.util.LZNFFile;
 import lznp.util.Utils;
 
@@ -29,6 +31,7 @@ public class Decompress
 {
     private final BitStream treeStream;
     private final BitStream bitStream;
+    private final long origCRC32;
     private byte[] inStream;
     private byte[] outStream;
     
@@ -39,6 +42,7 @@ public class Decompress
         treeStream = inFile.getTreeStream();
         bitStream = inFile.getBitStream();       
         inStream = new byte[inFile.getHeader().getFileLength()];  
+        origCRC32 = inFile.getHeader().getCRC32();
         hashTable = new HashMap<>();
     }
 
@@ -55,6 +59,7 @@ public class Decompress
     {
         decodeHuffman();
         decode();
+        checkCRC32();
     }
 
     /**
@@ -145,5 +150,11 @@ public class Decompress
         //trim
         inStream = Arrays.copyOf(inStream, current);
         
+   }
+    
+   private void checkCRC32()
+   {
+       long newCRC = FileIO.getCRC32(outStream);
+       if (origCRC32 != newCRC) throw new InvalidChecksumException("Error in decompressing file or corrupted file.");
    }
 }
