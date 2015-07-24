@@ -32,6 +32,7 @@ public class Decompress
     private final BitStream treeStream;
     private final BitStream bitStream;
     private final long origCRC32;
+    private final int origSize;
     private byte[] inStream;
     private byte[] outStream;
     
@@ -43,6 +44,7 @@ public class Decompress
         bitStream = inFile.getBitStream();       
         inStream = new byte[inFile.getHeader().getFileLength()];  
         origCRC32 = inFile.getHeader().getCRC32();
+        origSize = inFile.getHeader().getFileLength();
         hashTable = new HashMap<>();
     }
 
@@ -67,7 +69,7 @@ public class Decompress
      */
     private void decode()
     {
-        outStream = new byte[inStream.length * 4];
+        outStream = new byte[origSize + 1024];
         
         int matchLen;
         int current = 0;

@@ -200,13 +200,10 @@ public class BitStream {
     {
         clearBits();
         byte b = bank[bytePosition];
-        // counter (bits are read in backwards)
-        int up = 0;
-        for (int i = 7; i >= 0; i--)
+        for (int i = 7, j = 0; i >= 0; i--, j++)
         {
             int f = 1 << i;
-            if ((b & f) == f) bits[up] = true;
-            up++;
+            if ((b & f) == f) bits[j] = true;
         }
         bytePosition++;
         if (bytePosition > bank.length - 1) endOfBank = true;
