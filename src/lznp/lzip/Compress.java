@@ -43,7 +43,7 @@ public class Compress
     public Compress(Bank inBank)
     {
         this.inStream = inBank.getBank();
-        this.outStream = new byte[inStream.length + 1024];
+        this.outStream = new byte[inStream.length * 2];
         this.bitStream = new BitStream();
         hashTable = new HashMap<>();
     }
@@ -64,18 +64,15 @@ public class Compress
      */
     private void reduceFrequencies()
     {
-        frequency = Arrays.stream(frequency)
-                .map(x -> x/2)
-                .toArray();
-        // NOTE : Java 8. Should I include
-        // a backward-compatible version?
-        
-        /*
+
         for (int i = 0; i < frequency.length; i++)
         {
-            frequency[i] /= 2;
+            if (frequency[i] > 10)
+            {
+                 frequency[i] /= 2;
+            }          
         }
-        */
+        
     }
 
     /**
@@ -138,10 +135,11 @@ public class Compress
                         outPointer++;
                         matchLen -= 255;
                     }
-                    
+
                     outStream[outPointer] = (byte) (matchLen & 0xff);
                     addFrequency((byte) matchLen);
                     outPointer++;
+                        
                 }
                 else
                 {

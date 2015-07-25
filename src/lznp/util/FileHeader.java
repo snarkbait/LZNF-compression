@@ -31,7 +31,7 @@ public class FileHeader
     // TODO : get rid of magic numbers
 
     private String fileName;
-    private long crc32;
+    private int crc32;
     private int fileLength;
     private int nameLength;
     private int dataOffset;
@@ -46,7 +46,7 @@ public class FileHeader
         this.fileName = fileName;
         this.nameLength = fileName.length();
         this.fileLength = fileBank.size();
-        this.crc32 = fileBank.getCRC32();
+        this.crc32 = (int) fileBank.getCRC32() & 0xffffffff;
 
         makeHeader(fileBank);
     }
@@ -104,7 +104,7 @@ public class FileHeader
         return fileLength;
     }
     
-    public long getCRC32()
+    public int getCRC32()
     {
         return crc32;
     }
@@ -140,7 +140,7 @@ public class FileHeader
     {
         byte[] name = fileName.getBytes();
         byte[] fileLen = Utils.intToByte(fileLength);
-        byte[] crc = Utils.intToByte((int) crc32);
+        byte[] crc = Utils.intToByte((int) crc32 &0xffffffff);
         byte[] nameLen = Utils.intToByte(nameLength);
 
         header = new byte[20 + name.length];
@@ -161,7 +161,7 @@ public class FileHeader
     {
         byte[] inBank = fileBank.getBank();
         this.fileLength = Utils.byteToInt(Arrays.copyOfRange(inBank, 4, 8));
-        this.crc32 = (long) Utils.byteToInt(Arrays.copyOfRange(inBank, 8, 12));
+        this.crc32 = Utils.byteToInt(Arrays.copyOfRange(inBank, 8, 12));
         this.nameLength = Utils.byteToInt(Arrays.copyOfRange(inBank, 12, 16));
         this.dataOffset = Utils.byteToInt(Arrays.copyOfRange(inBank, 16, 20));
         this.fileName = new String(Arrays.copyOfRange(inBank, 20, 20 + nameLength));

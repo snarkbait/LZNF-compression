@@ -83,9 +83,9 @@ public class LZNF {
     public static void main(String[] args)
     {
 
-        LZNF lz = new LZNF("arrays.txt", "arrays.lzp");
+        LZNF lz = new LZNF("enwik6", "enwik6.lzp");
         lz.Compress();
-        LZNF dz = new LZNF("arrays.lzp");
+        LZNF dz = new LZNF("enwik6.lzp");
         dz.Decompress();
     }
 }

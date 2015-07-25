@@ -31,7 +31,7 @@ public class Decompress
 {
     private final BitStream treeStream;
     private final BitStream bitStream;
-    private final long origCRC32;
+    private final int origCRC32;
     private final int origSize;
     private byte[] inStream;
     private byte[] outStream;
@@ -42,7 +42,7 @@ public class Decompress
     {
         treeStream = inFile.getTreeStream();
         bitStream = inFile.getBitStream();       
-        inStream = new byte[inFile.getHeader().getFileLength()];  
+        inStream = new byte[inFile.getHeader().getFileLength() * 2];  
         origCRC32 = inFile.getHeader().getCRC32();
         origSize = inFile.getHeader().getFileLength();
         hashTable = new HashMap<>();
@@ -69,7 +69,7 @@ public class Decompress
      */
     private void decode()
     {
-        outStream = new byte[origSize + 1024];
+        outStream = new byte[origSize * 2];
         
         int matchLen;
         int current = 0;
@@ -121,7 +121,7 @@ public class Decompress
                     matchLen--;
                 }
                 current++;
-                if (current > inStream.length) break;
+                if (current > inStream.length - 1) { System.out.println("op " + outPointer); break; }
                 outStream[outPointer] = inStream[current];
                 outPointer++;
                 current++;
@@ -134,6 +134,7 @@ public class Decompress
             }
         }
         outStream = Arrays.copyOfRange(outStream, 0, outPointer);
+        //FileIO.bufferToFile(outStream, "tmp.txt");
     }
 
     /**
@@ -151,12 +152,14 @@ public class Decompress
         
         //trim
         inStream = Arrays.copyOf(inStream, current);
+        //System.out.println("instream length " + inStream.length);
+        //System.out.println(Utils.bankToString(inStream));
         
    }
     
    private void checkCRC32()
    {
-       long newCRC = FileIO.getCRC32(outStream);
+       int newCRC = (int) (FileIO.getCRC32(outStream) &0xffffffff);
        if (origCRC32 != newCRC) throw new InvalidChecksumException("Error in decompressing file or corrupted file.");
    }
 }

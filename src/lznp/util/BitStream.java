@@ -199,11 +199,11 @@ public class BitStream {
     private void pullByte()
     {
         clearBits();
-        byte b = bank[bytePosition];
+        byte current = bank[bytePosition];
         for (int i = 7, j = 0; i >= 0; i--, j++)
         {
-            int f = 1 << i;
-            if ((b & f) == f) bits[j] = true;
+            int flagBit = 1 << i;
+            if ((current & flagBit) == flagBit) bits[j] = true;
         }
         bytePosition++;
         if (bytePosition > bank.length - 1) endOfBank = true;
