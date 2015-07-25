@@ -22,6 +22,8 @@ public class Node {
     int index;
     int count;
     String code = "";
+    int hcode;
+    int hlen;
     Node left;
     Node right;
     

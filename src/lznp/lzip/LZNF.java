@@ -20,6 +20,7 @@ import lznp.util.LZNFFile;
 
 /**
  * LZNF main class for LZNF compression/decompression
+ * Based of LZP modification idea by Lucas Marsh
  * @author /u/Philboyd_Studge
  */
 public class LZNF {
@@ -83,7 +84,7 @@ public class LZNF {
     public static void main(String[] args)
     {
 
-        LZNF lz = new LZNF("enwik6", "enwik6.lzp");
+        LZNF lz = new LZNF("enwik6.xml", "enwik6.lzp");
         lz.Compress();
         LZNF dz = new LZNF("enwik6.lzp");
         dz.Decompress();

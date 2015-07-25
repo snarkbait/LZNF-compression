@@ -171,12 +171,16 @@ public class BitStream {
     public void pushBits(int value, int length)
     {
         // TODO : Is there a way to do this with bit math
-        String str = Integer.toBinaryString(value);
-        while (str.length() < length)
+//        String str = Integer.toBinaryString(value);
+//        while (str.length() < length)
+//        {
+//            str = "0" + str;
+//        }
+//        pushBits(str);
+        for (int i = length - 1; i >= 0; i--)
         {
-            str = "0" + str;
+            pushBit((value & (1 << i)) == 1 << i);
         }
-        pushBits(str);
     }
     
     /**

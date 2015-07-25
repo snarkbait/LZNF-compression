@@ -69,7 +69,7 @@ public class Decompress
      */
     private void decode()
     {
-        outStream = new byte[origSize * 2];
+        outStream = new byte[origSize];
         
         int matchLen;
         int current = 0;

@@ -76,7 +76,7 @@ public class Compress
     }
 
     /**
-     * LZNF routine, based on LZP by Charles Bloom
+     * LZNF routine, based on LZP by Charles Bloom, modification idea by Lucas Marsh
      */
     public void compress()
     {
@@ -109,7 +109,7 @@ public class Compress
             }
             else
             {
-                hashTable.put(context, 0);
+                //hashTable.put(context, 0);
                 pointer = 0;
             }
             
@@ -168,11 +168,11 @@ public class Compress
         // TODO: Logging
         HuffmanTree tree = new HuffmanTree(frequency);
         treeStream = tree.getBitTree();
-        String[] codes = tree.getCodes();
+        int[][] codes = tree.getCodes();
         bitStream = new BitStream(outStream.length);
         for (int i = 0; i < outStream.length; i++)
         {
-            bitStream.pushBits(codes[outStream[i] & 0xff]);
+            bitStream.pushBits(codes[0][outStream[i] & 0xff], codes[1][outStream[i] & 0xff]);
         }
         bitStream.close();
         

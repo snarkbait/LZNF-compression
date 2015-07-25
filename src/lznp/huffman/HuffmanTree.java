@@ -110,28 +110,32 @@ public class HuffmanTree
      * given frequency array
      * @return Array of bit codes corresponding to the array index
      */
-    public String[] getCodes()
+    public int[][] getCodes()
     {
         if (htree.root == null) return null;
-        String[] codes = new String[256];
+        //String[] codes = new String[256];
+        int[][] codes = new int[2][256];
         assignCodes(htree.root, codes);
         return codes;
     }
     
-    private void assignCodes(Node root, String[] codes)
+    private void assignCodes(Node root, int[][] codes)
     {
         // TODO : use integers and bit math for speed
         if (root.left != null)
         {
-            root.left.code = root.code + "0";
+            root.left.hcode = root.hcode << 1;
+            root.left.hlen = root.hlen + 1;
             assignCodes(root.left, codes);
             
-            root.right.code = root.code + "1";
+            root.right.hcode = root.hcode << 1 ^ 1;
+            root.right.hlen = root.hlen + 1;
             assignCodes(root.right, codes);
         }
         else
         {
-            codes[root.index] = root.code;
+            codes[0][root.index] = root.hcode;
+            codes[1][root.index] = root.hlen;
         }
     }
 
