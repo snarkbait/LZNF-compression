@@ -14,6 +14,7 @@
  */
 package lznp.lzip;
 
+import lznp.exception.NotValidFileException;
 import lznp.util.Bank;
 import lznp.util.FileIO;
 import lznp.util.LZNFFile;
@@ -38,6 +39,7 @@ public class LZNF {
     {
         this.fileName = fileName;
         this.inputBank = FileIO.getBankFromFile(fileName);
+        if (this.inputBank == null) throw new NotValidFileException("File not found.");
     } 
     
     /**
@@ -51,6 +53,7 @@ public class LZNF {
         this.fileName = fileName;
         this.outFile = outFile;
         this.inputBank = FileIO.getBankFromFile(fileName);
+        if (this.inputBank == null) throw new NotValidFileException("File not found.");
     }
 
     /**
@@ -84,9 +87,9 @@ public class LZNF {
     public static void main(String[] args)
     {
 
-        LZNF lz = new LZNF("enwik6.xml", "enwik6.lzp");
+        LZNF lz = new LZNF("arrays.txt", "arrays.lzp");
         lz.Compress();
-        LZNF dz = new LZNF("enwik6.lzp");
+        LZNF dz = new LZNF("arrays.lzp");
         dz.Decompress();
     }
 }

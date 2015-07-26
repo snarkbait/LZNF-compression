@@ -52,7 +52,7 @@ public class FileIO {
         catch (IOException ioe)
         {
                 // TODO : change to Logger
-                System.err.println(ioe.getMessage());
+                //System.err.println(ioe.getMessage());
                 return null;
         }
         return new Bank(buffer);        

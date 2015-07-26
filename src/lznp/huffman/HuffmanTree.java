@@ -113,7 +113,6 @@ public class HuffmanTree
     public int[][] getCodes()
     {
         if (htree.root == null) return null;
-        //String[] codes = new String[256];
         int[][] codes = new int[2][256];
         assignCodes(htree.root, codes);
         return codes;

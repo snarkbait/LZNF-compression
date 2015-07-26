@@ -156,7 +156,7 @@ public class BitStream {
     public void pushBits(int inBits) {
         int len = 31 - Integer.numberOfLeadingZeros(inBits);
         while(len >= 0) {
-            pushBit((inBits & (1 << len)) == 1 << len);
+            pushBit((inBits >> len & 1) == 1);
             len--;
         }
     }
@@ -179,7 +179,7 @@ public class BitStream {
 //        pushBits(str);
         for (int i = length - 1; i >= 0; i--)
         {
-            pushBit((value & (1 << i)) == 1 << i);
+            pushBit((value >> i & 1) == 1);
         }
     }
     
