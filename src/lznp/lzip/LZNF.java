@@ -62,10 +62,12 @@ public class LZNF {
     public void Compress()
     {
         Compress zip = new Compress(inputBank);
+        long time = System.currentTimeMillis();
         zip.compress();
-        zip.encodeHuffman();
+        //zip.encodeHuffman();
+        System.out.println("Elapsed no file funcs:" + (System.currentTimeMillis()- time));
         
-        byte[] outStream = new LZNFFile(fileName, inputBank, zip.getTreeStream(), zip.getBitStream()).pack();
+        byte[] outStream = new LZNFFile(fileName, inputBank, zip).pack();
         FileIO.bufferToFile(outStream, outFile);
         //System.out.println("after huffman " + outputBank.size());
     }
@@ -87,9 +89,9 @@ public class LZNF {
     public static void main(String[] args)
     {
 
-        LZNF lz = new LZNF("arrays.txt", "arrays.lzp");
+        LZNF lz = new LZNF("sharnd.out", "sharnd.tst");
         lz.Compress();
-        LZNF dz = new LZNF("arrays.lzp");
-        dz.Decompress();
+       // LZNF dz = new LZNF("arrays.lzp");
+        //dz.Decompress();
     }
 }

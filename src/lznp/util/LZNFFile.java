@@ -14,7 +14,10 @@
  */
 package lznp.util;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import lznp.lzip.Compress;
+import lznp.lzip.CompressedBlock;
 
 /**
  * LZNFFile class
@@ -24,8 +27,12 @@ import java.util.Arrays;
 public class LZNFFile
 {
     private final FileHeader header;
+    private CompressedBlock literals;
+    private CompressedBlock matches;
     private BitStream treeStream;
     private BitStream bitStream;
+    private BitStream matchStream;
+    private BitStream matchTreeStream;
 
     /**
      * for decompress
@@ -44,11 +51,11 @@ public class LZNFFile
      * @param treeStream BitStream of Huffman tree
      * @param bitStream BitStream of encoded data
      */
-    public LZNFFile(String fileName, Bank inBank, BitStream treeStream, BitStream bitStream)
+    public LZNFFile(String fileName, Bank inBank, Compress zip)
     {
         this.header = new FileHeader(fileName, inBank);
-        this.treeStream = treeStream;
-        this.bitStream = bitStream;
+        this.literals = zip.getLiterals();
+        this.matches = zip.getMatches();
     }
 
     /**
@@ -57,12 +64,18 @@ public class LZNFFile
      */
     public byte[] pack()
     {
-        int length = header.getHeader().length + treeStream.length() + bitStream.length();
-        header.setDataOffset(header.getHeader().length + treeStream.length());
+        ByteBuffer bbLits = literals.pack();
+        ByteBuffer bbMatches = matches.pack();
+        byte[] lits = new byte[bbLits.capacity()];
+        byte[] mats = new byte[bbMatches.capacity()];
+        bbLits.get(lits);
+        bbMatches.get(mats);
+        int length = header.getHeader().length + lits.length + mats.length;
+        header.setDataOffset(header.getHeader().length);
         byte[] outBank = new byte[length];
         System.arraycopy(header.getHeader(), 0, outBank, 0, header.getHeader().length);
-        System.arraycopy(treeStream.getBank(), 0, outBank, header.getHeader().length, treeStream.length());
-        System.arraycopy(bitStream.getBank(), 0, outBank, header.getHeader().length + treeStream.length(), bitStream.length());
+        System.arraycopy(lits, 0, outBank, header.getHeader().length, lits.length);
+        System.arraycopy(mats, 0, outBank, header.getHeader().length + lits.length, mats.length);
         return outBank;
     }
 

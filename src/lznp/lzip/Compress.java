@@ -16,7 +16,6 @@ package lznp.lzip;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import lznp.huffman.HuffmanTree;
 import lznp.util.Bank;
 import lznp.util.BitStream;
 import lznp.util.Utils;
@@ -31,9 +30,9 @@ public class Compress
 {
     private final byte[] inStream;
     private byte[] outStream;
-    private BitStream bitStream;
-    private BitStream treeStream;
-    private int[] frequency = new int[256];
+    private byte[] matchStream;
+    private CompressedBlock literals;
+    private CompressedBlock matches;
     private HashMap<Integer, Integer> hashTable;
 
     /**
@@ -44,38 +43,23 @@ public class Compress
     {
         this.inStream = inBank.getBank();
         this.outStream = new byte[inStream.length * 2];
-        this.bitStream = new BitStream();
+        this.matchStream = new byte[inStream.length];
+        literals = new CompressedBlock();
+        matches = new CompressedBlock();
         hashTable = new HashMap<>();
     }
     
+    public CompressedBlock getLiterals()
+    {
+        return literals;
+    }
+    
+    public CompressedBlock getMatches()
+    {
+        return matches;
+    }
+    
      /**
-     * Add byte value as index to frequency table
-     * check if count is getting quite large
-     * @param index byte value of output stream
-     */
-    private void addFrequency(int index)
-    {
-        if (frequency[index & 0xff] >= Integer.MAX_VALUE/2) reduceFrequencies();
-        frequency[index & 0xff]++;
-    }
-
-    /**
-     * reduce frequency counts by half
-     */
-    private void reduceFrequencies()
-    {
-
-        for (int i = 0; i < frequency.length; i++)
-        {
-            if (frequency[i] > 10)
-            {
-                 frequency[i] /= 2;
-            }          
-        }
-        
-    }
-
-    /**
      * LZNF routine, based on LZP by Charles Bloom, modification idea by Lucas Marsh
      */
     public void compress()
@@ -84,13 +68,14 @@ public class Compress
         int current = 0;
         int pointer;
         int outPointer = 0;
+        int matchPointer = 0;
         
         
         // load first three bytes as literals
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
             outStream[i] = inStream[i];
-            addFrequency((byte) inStream[i] & 0xff);
+            literals.addFrequency((byte) inStream[i] & 0xff);
             current++;
             outPointer++;
         }
@@ -99,19 +84,12 @@ public class Compress
         while (current < inStream.length)
         {
             // get context
-            byte[] contextBytes = { inStream[current - 3], inStream[current - 2], inStream[current - 1]};
+            byte[] contextBytes = { inStream[current - 4], inStream[current - 3], inStream[current - 2], inStream[current - 1]};
             int context = Utils.byteToInt(contextBytes);
             
             // see if it is already in the hashTable, if so, get last pointer
-            if (hashTable.containsKey(context))
-            {
-                pointer = hashTable.get(context);
-            }
-            else
-            {
-                //hashTable.put(context, 0);
-                pointer = 0;
-            }
+            
+            pointer = hashTable.getOrDefault(context, 0);
             
             // put current pointer to hash table
             hashTable.put(context, current);
@@ -130,65 +108,38 @@ public class Compress
                 {
                     while (matchLen >= 255)
                     {
-                        outStream[outPointer] = (byte) 255;
-                        addFrequency((byte)255);
-                        outPointer++;
+                        matchStream[matchPointer] = (byte) 255;
+                        matches.addFrequency((byte)255);
+                        matchPointer++;
                         matchLen -= 255;
                     }
-
-                    outStream[outPointer] = (byte) (matchLen & 0xff);
-                    addFrequency((byte) matchLen);
-                    outPointer++;
-                        
+                    
+                    matchStream[matchPointer] = (byte) (matchLen & 0xff);
+                    matchPointer++;
+                    matches.addFrequency((byte) matchLen);
+                       
                 }
                 else
                 {
-                    outStream[outPointer] = (byte) 0;
-                    addFrequency((byte) 0);
-                    outPointer++;
+                    matchStream[matchPointer] = (byte) 0;
+                    matchPointer++;
+                    matches.addFrequency((byte) 0);
                 }
             }
 
             if (current >= inStream.length) break;
             outStream[outPointer] = inStream[current];
-            addFrequency((byte) inStream[current] & 0xff);
+            literals.addFrequency((byte) inStream[current] & 0xff);
             current++;
             outPointer++;
         }
         
         outStream = Arrays.copyOfRange(outStream, 0, outPointer);
-    }
-
-    /**
-     * Get Huffman tree based on frequency information from compress()
-     * encode bytes to variable bit lengths and convert compressed output to BitStream
-     */
-    public void encodeHuffman()
-    {
-        // TODO: Logging
-        HuffmanTree tree = new HuffmanTree(frequency);
-        treeStream = tree.getBitTree();
-        int[][] codes = tree.getCodes();
-        bitStream = new BitStream(outStream.length);
-        for (int i = 0; i < outStream.length; i++)
-        {
-            bitStream.pushBits(codes[0][outStream[i] & 0xff], codes[1][outStream[i] & 0xff]);
-        }
-        bitStream.close();
+        System.out.println("literal lengths: " + outStream.length);
+        matchStream = Arrays.copyOfRange(matchStream, 0, matchPointer);
         
-    }
+        literals.encodeHuffman(outStream);
+        matches.encodeHuffman(matchStream);
 
-    /**
-     * get treeStream
-     * @return BitStream of Huffman tree
-     */
-    public BitStream getTreeStream() { return treeStream; }
-    
-    /**
-     * get bitStream
-     * @return BitStream of Huffman-encoded data
-     */
-    public BitStream getBitStream() { return bitStream; }
-    
-    
+    }  
 }

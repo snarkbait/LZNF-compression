@@ -149,4 +149,13 @@ public class HuffmanTree
         return htree.getCode(bs);
     }
     
+    public static int[] getFrequencies(byte[] bank)
+    {
+        int[] freq = new int[256];
+        for (int i = 0; i < bank.length; i++)
+        {
+            freq[bank[i] & 0xff]++;
+        }
+        return freq;
+    }
 }
